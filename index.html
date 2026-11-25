@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Yılbaşı Çekilişi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* VOICE: warm, festive office party, but tidy and trustworthy
+   IDEA: a paper gift tag on a string, handed to each person
+   PICTURE: the working tool itself; on reveal, a large gift tag that flips open
+   COLOUR and TYPE: cranberry field, white paper, gold accent; DM Serif Display + Inter
+   LAYOUT: one calm column, tool at top; stacks naturally on phones */
+:root{color-scheme:light dark;
+--bg:light-dark(#8e1b26,#2a0a0f);--paper:light-dark(#fffdf9,#1d1416);--ink:light-dark(#2a1215,#f6ece6);
+--muted:light-dark(#7a5a5e,#c4a9ab);--line:light-dark(#ead9d6,#3b2a2d);--gold:light-dark(#c8912f,#e0b25a);
+--red:light-dark(#8e1b26,#e06a74);--on:#fff}
+:root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 Inter,system-ui,sans-serif;overflow-x:clip;min-height:100vh;
+background-image:radial-gradient(circle at 12% 8%,rgba(255,255,255,.10) 0 2px,transparent 3px),radial-gradient(circle at 70% 30%,rgba(255,255,255,.08) 0 1.5px,transparent 2.5px);background-size:90px 90px,130px 130px}
+.wrap{max-width:720px;margin:0 auto;padding:clamp(24px,5vw,56px) max(4vw,14px) 64px}
+h1{font:400 clamp(34px,7vw,52px)/1.05 "DM Serif Display",Georgia,serif;color:var(--on);margin:0 0 8px;text-wrap:balance}
+.lede{color:#f3d9d6;margin:0 0 24px;max-width:60ch}
+.card{background:var(--paper);border-radius:18px;padding:clamp(18px,4vw,30px);box-shadow:0 18px 40px rgba(0,0,0,.25)}
+label{display:block;font-weight:600;margin:0 0 6px}
+.hint{color:var(--muted);font-size:14px;margin:4px 0 0}
+textarea,input{width:100%;font:16px/1.5 Inter,system-ui,sans-serif;color:var(--ink);background:transparent;border:1.5px solid var(--line);border-radius:12px;padding:12px 14px}
+textarea{min-height:260px;resize:vertical}
+textarea:focus,input:focus,button:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+.row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px;margin-top:18px}
+button{font:600 16px/1 Inter,system-ui,sans-serif;min-height:44px;padding:0 18px;border-radius:999px;border:1.5px solid var(--line);background:transparent;color:var(--ink);cursor:pointer}
+button.pri{background:var(--red);border-color:var(--red);color:#fff}
+button.gold{background:var(--gold);border-color:var(--gold);color:#2a1215}
+button:disabled{opacity:.45;cursor:not-allowed}
+.actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:20px;align-items:center}
+.count{font-weight:600;color:var(--red)}
+.err{color:var(--red);font-size:14px;margin-top:8px;min-height:1em}
+ul.people{list-style:none;margin:16px 0 0;padding:0}
+ul.people li{display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:10px 0;border-top:1px solid var(--line)}
+ul.people .nm{flex:1 1 160px;font-weight:500}
+ul.people button{min-height:40px;padding:0 14px;font-size:14px}
+a.wa{display:inline-flex;align-items:center;min-height:44px;padding:0 16px;border-radius:999px;background:#1f8f4e;color:#fff;font-weight:600;font-size:15px;text-decoration:none}
+a.wa:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+.seen{font-size:13px;color:var(--muted)}
+.meta{display:flex;flex-wrap:wrap;gap:8px 18px;color:var(--muted);font-size:14px;margin-top:6px}
+.meta b{color:var(--ink);font-weight:600;white-space:nowrap}
+details{margin-top:22px;border-top:1px solid var(--line);padding-top:14px}
+summary{cursor:pointer;color:var(--muted);font-size:14px}
+table{width:100%;border-collapse:collapse;margin-top:10px;font-size:15px}
+td{padding:7px 4px;border-bottom:1px solid var(--line)}
+/* gift tag */
+.tagwrap{display:grid;place-items:center;padding:10px 0 4px}
+.tag{position:relative;width:min(100%,380px);aspect-ratio:3/4;perspective:1200px}
+.tag .in{position:absolute;inset:0;transition:transform .8s cubic-bezier(.2,.7,.2,1);transform-style:preserve-3d}
+.tag.open .in{transform:rotateY(180deg)}
+.face{position:absolute;inset:0;backface-visibility:hidden;border-radius:22px 22px 26px 26px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:28px;box-shadow:0 24px 50px rgba(0,0,0,.35)}
+.front{background:linear-gradient(160deg,#b3283a,#7a1320);color:#fff}
+.back{background:var(--paper);color:var(--ink);transform:rotateY(180deg)}
+.hole{position:absolute;top:22px;left:50%;width:22px;height:22px;margin-left:-11px;border-radius:50%;background:var(--bg);box-shadow:inset 0 2px 4px rgba(0,0,0,.4)}
+.ribbon{position:absolute;left:0;right:0;top:46%;height:34px;background:linear-gradient(var(--gold),#a8741f);opacity:.95}
+.front .lbl{position:relative;font:400 clamp(26px,6vw,34px)/1.1 "DM Serif Display",Georgia,serif;margin-top:auto}
+.front .sub{position:relative;opacity:.85;font-size:15px;margin-top:8px;margin-bottom:auto}
+.back .small{color:var(--muted);font-size:15px}
+.back .who{font:400 clamp(32px,8vw,46px)/1.08 "DM Serif Display",Georgia,serif;color:var(--red);margin:10px 0 18px;overflow-wrap:anywhere;text-wrap:balance}
+.center{text-align:center}
+.overlay{position:fixed;inset:0;background:rgba(20,5,8,.78);display:none;align-items:center;justify-content:center;padding:16px;z-index:10}
+.overlay.on{display:flex}
+.dlg{background:var(--paper);color:var(--ink);border-radius:18px;padding:24px;max-width:440px;width:100%}
+.dlg h2{font:400 26px/1.15 "DM Serif Display",Georgia,serif;margin:0 0 8px}
+.dlg textarea{min-height:120px;font-size:14px}
+.note{color:#f3d9d6;font-size:14px;margin-top:18px}
+@media(max-width:600px){.row{grid-template-columns:minmax(0,1fr)}textarea{min-height:200px}}
+@media(prefers-reduced-motion:reduce){.tag .in{transition:none}}
+</style>
+</head>
+<body>
+<main class="wrap" id="app"></main>
+
+<div class="overlay" id="ov"><div class="dlg" id="dlg"></div></div>
+
+<script>
+{
+const BASE = location.href.split('#')[0];
+const KEY = 'yilbasi-cekilis-v2';
+const app = document.getElementById('app');
+const ov = document.getElementById('ov'), dlg = document.getElementById('dlg');
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const te = new TextEncoder(), td = new TextDecoder();
+const hex = a => Array.from(a, b => b.toString(16).padStart(2,'0')).join('');
+const unhex = h => new Uint8Array(h.match(/../g).map(x => parseInt(x,16)));
+const TR = {'ç':'c','ğ':'g','ı':'i','i̇':'i','ö':'o','ş':'s','ü':'u','â':'a','î':'i','û':'u'};
+// "Eda Yılmaz", "eda  yilmaz", "EDA YILMAZ" hepsi aynı kabul edilir
+const norm = s => String(s).toLocaleLowerCase('tr').replace(/i̇|[çğıöşüâîû]/g, c => TR[c]).replace(/[^a-z0-9 ]/g,' ').replace(/\s+/g,' ').trim();
+
+function stream(seed, n){
+  let s = 0x9e3779b9; for (const b of seed) s = Math.imul(s ^ b, 0x85ebca6b) >>> 0;
+  const out = new Uint8Array(n);
+  for (let i=0;i<n;i++){ s ^= s<<13; s>>>=0; s ^= s>>>17; s ^= s<<5; s>>>=0; out[i]=s&255; }
+  return out;
+}
+function h32(str){ let h = 0x811c9dc5; for (const b of te.encode(str)) h = Math.imul(h ^ b, 0x01000193) >>> 0; return [h>>>24, (h>>>16)&255, (h>>>8)&255, h&255]; }
+function rnd(n){ const a = new Uint32Array(1); crypto.getRandomValues(a); return a[0] % n; }
+// Sattolo: tek bir döngü — kimse kendine çıkmaz, herkes tam bir kişiye verir ve tam bir kişiden alır
+function draw(names){
+  const p = names.map((_,i) => i);
+  for (let i = p.length-1; i > 0; i--){ const j = rnd(i); [p[i],p[j]] = [p[j],p[i]]; }
+  return names.map((g,i) => ({g, r: names[p[i]]}));
+}
+// Tüm eşleşmeler tek linkte; her kayıt sadece o kişinin adıyla açılır
+function pack(pairs){
+  const salt = crypto.getRandomValues(new Uint8Array(6)), sh = hex(salt), out = [...salt];
+  const list = pairs.slice().sort(() => rnd(3) - 1);
+  for (const p of list){
+    const n = norm(p.g), r = te.encode(p.r).slice(0,255), k = stream(te.encode(sh+'#'+n), r.length);
+    out.push(...h32(sh+'|'+n), r.length, ...r.map((x,i) => x ^ k[i]));
+  }
+  return 'g' + hex(out);
+}
+function lookup(tok, name){
+  const b = unhex(tok.slice(1)), sh = hex(b.slice(0,6)), n = norm(name), id = h32(sh+'|'+n);
+  for (let i = 6; i + 5 <= b.length; ){
+    const len = b[i+4], hit = id.every((x,j) => b[i+j] === x);
+    if (hit){ const k = stream(te.encode(sh+'#'+n), len); return td.decode(b.slice(i+5, i+5+len).map((x,j) => x ^ k[j])); }
+    i += 5 + len;
+  }
+  return null;
+}
+const validTok = t => /^g[0-9a-f]{20,}$/.test(t) && (t.length-1) % 2 === 0;
+
+let st = load();
+function load(){ try{ return JSON.parse(localStorage.getItem(KEY)) || {names:''}; }catch(e){ return {names:''}; } }
+function save(){ try{ localStorage.setItem(KEY, JSON.stringify(st)); }catch(e){} }
+const groupLink = () => BASE + '#' + st.tok;
+const groupMsg = () => `Yılbaşı çekilişi yapıldı! Linke girip adını soyadını yaz, kime hediye alacağını gör. Kimseye söyleme 🤫\n${groupLink()}`;
+
+function parse(txt){ return txt.split(/\n|,/).map(s => s.trim().replace(/\s+/g,' ')).filter(Boolean); }
+function dupes(list){ const seen = {}, d = []; for (const n of list){ const k = norm(n); if (seen[k]) d.push(n); seen[k]=1; } return d; }
+
+function renderSetup(){
+  app.innerHTML = `
+  <h1>Yılbaşı Çekilişi</h1>
+  <p class="lede">İsimleri yaz, çekilişi yap, çıkan tek linki gruba at. Herkes adını soyadını yazıp kime çıktığını görür; kimse kendine çıkmaz.</p>
+  <div class="card">
+    <label for="names">Katılımcılar (ad soyad)</label>
+    <textarea id="names" placeholder="Her satıra bir kişi&#10;Eda Yılmaz&#10;Mehmet Kaya&#10;..."></textarea>
+    <p class="hint"><span class="count" id="cnt">0</span> kişi · Herkes adını burada yazdığın gibi girecek.</p>
+    <div class="err" id="err"></div>
+    <div class="actions"><button class="pri" id="go" disabled>Çekilişi yap</button></div>
+  </div>`;
+  const ta = document.getElementById('names');
+  ta.value = st.names||'';
+  const upd = () => {
+    st.names = ta.value; save();
+    const l = parse(ta.value), d = dupes(l), bad = l.filter(x => !norm(x));
+    document.getElementById('cnt').textContent = l.length;
+    document.getElementById('err').textContent = d.length ? 'Tekrar eden isim: ' + d.join(', ') : bad.length ? 'Geçersiz isim: ' + bad.join(', ') : (l.length && l.length < 3 ? 'En az 3 kişi gerekli.' : '');
+    document.getElementById('go').disabled = l.length < 3 || d.length > 0 || bad.length > 0;
+  };
+  ta.oninput = upd; upd();
+  document.getElementById('go').onclick = () => doDraw(parse(ta.value));
+}
+function doDraw(names){ st.pairs = draw(names); st.tok = pack(st.pairs); save(); renderResults(); }
+
+function renderResults(){
+  const ps = st.pairs;
+  app.innerHTML = `
+  <h1>Çekiliş yapıldı</h1>
+  <p class="lede">${ps.length} kişi eşleşti. Bu tek linki WhatsApp grubuna at.</p>
+  <div class="card">
+    <div class="actions" style="margin-top:0">
+      <a class="wa" href="https://wa.me/?text=${encodeURIComponent(groupMsg())}" target="_blank" rel="noopener">WhatsApp'ta paylaş</a>
+      <button id="cp">Linki kopyala</button>
+    </div>
+    <p class="hint" style="margin-top:12px">Linke giren kişi adını soyadını yazar, sadece kendi sonucunu görür.</p>
+    <div class="actions"><button id="redo">Yeniden çek</button><button id="edit">İsimleri düzenle</button></div>
+    <details><summary>Organizatör: tüm eşleşmeleri gör</summary><div id="allp"></div></details>
+  </div>
+  <p class="note">Çekiliş bu cihazda saklanıyor. Yeniden çekersen eski link geçersiz olur; yeni linki gruba atman gerekir.</p>`;
+  document.getElementById('cp').onclick = e => copy(groupLink(), e.target);
+  document.getElementById('redo').onclick = () => confirmDlg('Yeniden çekilsin mi?', 'Eski link artık işe yaramaz; gruba yeni linki atman gerekir.', 'Yeniden çek', () => doDraw(ps.map(p => p.g)));
+  document.getElementById('edit').onclick = () => confirmDlg('İsimler düzenlensin mi?', 'Mevcut çekiliş silinir. Düzenledikten sonra çekilişi tekrar yaparsın.', 'Düzenle', () => { delete st.pairs; delete st.tok; save(); renderSetup(); });
+  const det = app.querySelector('details');
+  det.ontoggle = () => { document.getElementById('allp').innerHTML = det.open ? `<table>${ps.map(p => `<tr><td>${esc(p.g)}</td><td style="text-align:right">${esc(p.r)}</td></tr>`).join('')}</table>` : ''; };
+}
+
+function tagHtml(g, r){
+  return `<div class="tagwrap"><div class="tag" id="tag"><div class="in">
+    <div class="face front"><div class="hole"></div><div class="ribbon"></div><div class="lbl">${esc(g)}</div><div class="sub">Hediye alacağın kişiyi görmek için aç</div></div>
+    <div class="face back"><div class="hole"></div><div class="small">Hediye alacağın kişi</div><div class="who">${esc(r)}</div><p class="small" style="margin-top:8px">Kimseye söyleme!</p></div>
+  </div></div></div>
+  <div class="actions" style="justify-content:center"><button class="pri" id="open">Aç</button><button id="back">Kapat</button></div>`;
+}
+
+function renderJoin(tok){
+  app.innerHTML = `
+  <h1>Yılbaşı Çekilişi</h1>
+  <p class="lede">Adını ve soyadını yaz, kime hediye alacağını gör.</p>
+  <form class="card" id="f">
+    <label for="nm">Adın soyadın</label>
+    <input id="nm" autocomplete="name" placeholder="örn. Eda Yılmaz">
+    <div class="err" id="err"></div>
+    <div class="actions"><button class="pri" type="submit">Göster</button></div>
+  </form>`;
+  const nm = document.getElementById('nm');
+  document.getElementById('f').onsubmit = e => {
+    e.preventDefault();
+    const v = nm.value.trim(), err = document.getElementById('err');
+    if (!norm(v)){ err.textContent = 'Adını soyadını yaz.'; return; }
+    const r = lookup(tok, v);
+    if (!r){ err.textContent = 'Bu isim listede yok. Adını ve soyadını tam yaz; olmazsa organizatöre sor.'; return; }
+    app.innerHTML = `<h1 class="center">Merhaba ${esc(v)}</h1><p class="lede center">Etiketi aç, kime hediye alacağını gör.</p>${tagHtml(v, r)}`;
+    const o = document.getElementById('open'), t = document.getElementById('tag');
+    o.onclick = () => { t.classList.toggle('open'); o.textContent = t.classList.contains('open') ? 'Gizle' : 'Aç'; };
+    document.getElementById('back').onclick = () => renderJoin(tok);
+  };
+}
+function renderBadLink(){
+  app.innerHTML = `<h1>Link okunamadı</h1><div class="card"><p>Bu link eksik görünüyor. Gruptaki linkin tamamını aşağıya yapıştır.</p><input id="tk" placeholder="Linki buraya yapıştır"><div class="actions"><button class="pri" id="ok">Devam</button></div><div class="err" id="err"></div></div>`;
+  document.getElementById('ok').onclick = () => { const t = document.getElementById('tk').value.replace(/^.*#/,'').trim(); if (validTok(t)) renderJoin(t); else document.getElementById('err').textContent = 'Bu link geçerli değil.'; };
+}
+
+function close(){ ov.classList.remove('on'); dlg.innerHTML = ''; }
+function confirmDlg(t, m, ok, fn){
+  dlg.innerHTML = `<h2>${esc(t)}</h2><p>${esc(m)}</p><div class="actions"><button class="pri" id="y">${esc(ok)}</button><button id="n">Vazgeç</button></div>`;
+  ov.classList.add('on');
+  document.getElementById('n').onclick = close;
+  document.getElementById('y').onclick = () => { close(); fn(); };
+}
+async function copy(text, btn){
+  try{ await navigator.clipboard.writeText(text); const o = btn.textContent; btn.textContent = 'Kopyalandı'; setTimeout(() => btn.textContent = o, 1500); }
+  catch(e){
+    dlg.innerHTML = `<h2>Elle kopyala</h2><p class="hint">Otomatik kopyalama engellendi. Metni seçip kopyala.</p><textarea id="cpt" readonly>${esc(text)}</textarea><div class="actions"><button id="n">Kapat</button></div>`;
+    ov.classList.add('on'); const c = document.getElementById('cpt'); c.focus(); c.select();
+    document.getElementById('n').onclick = close;
+  }
+}
+
+function route(){
+  const h = location.hash.slice(1);
+  if (h.startsWith('g')){ validTok(h) ? renderJoin(h) : renderBadLink(); return; }
+  if (h.startsWith('h')){ renderBadLink(); return; }
+  st.pairs && st.tok ? renderResults() : renderSetup();
+}
+addEventListener('hashchange', route);
+route();
+}
+</script>
+</body>
+</html>
