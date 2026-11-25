@@ -182,6 +182,7 @@ function renderResults(){
     <div class="actions" style="margin-top:0">
       <a class="wa" href="https://wa.me/?text=${encodeURIComponent(groupMsg())}" target="_blank" rel="noopener">WhatsApp'ta paylaş</a>
       <button id="cp">Linki kopyala</button>
+      <button id="cpn">İsimleri kopyala</button>
     </div>
     <p class="hint" style="margin-top:12px">Linke giren kişi adını soyadını yazar, sadece kendi sonucunu görür.</p>
     <div class="actions"><button id="redo">Yeniden çek</button><button id="edit">İsimleri düzenle</button></div>
@@ -189,6 +190,7 @@ function renderResults(){
   </div>
   <p class="note">Bu ekranın adresi: sayfa linkinin sonuna #yonetim. Çekiliş bu cihazda saklanıyor. Yeniden çekersen eski link geçersiz olur; yeni linki gruba atman gerekir.</p>`;
   document.getElementById('cp').onclick = e => copy(groupLink(), e.target);
+  document.getElementById('cpn').onclick = e => copy(ps.map(p => p.g).sort((x,y) => x.localeCompare(y,'tr')).join('\n'), e.target);
   document.getElementById('redo').onclick = () => confirmDlg('Yeniden çekilsin mi?', 'Eski link artık işe yaramaz; gruba yeni linki atman gerekir.', 'Yeniden çek', () => doDraw(ps.map(p => p.g)));
   document.getElementById('edit').onclick = () => confirmDlg('İsimler düzenlensin mi?', 'Mevcut çekiliş silinir. Düzenledikten sonra çekilişi tekrar yaparsın.', 'Düzenle', () => { delete st.pairs; delete st.tok; save(); renderSetup(); });
   const det = app.querySelector('details');
