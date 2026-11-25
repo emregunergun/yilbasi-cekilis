@@ -89,10 +89,10 @@ td{padding:7px 4px;border-bottom:1px solid var(--line)}
 
 <script>
 {
-const BASE = location.href.split('#')[0];
-// Gömülü çekiliş: link # kısmı olmadan açılsa da çalışır. Organizatör ekranı: #yonetim
-const NAMES = [];
-const EMBED = 'g0f9d9486d5942386bcef0e30d1146a0145a46389cead19b5aff5d3e7ff0bfe849edc90fdcbccd1b0bf7b96e36610f2cbaa5916ff9da1582d7f53c2e86ae9a9e6c9920f90f09c5dc6b660c4bb184f7260a12b7ba753860cdeea6c3692d441e1da0215887afa05f00e6b954dae34b0c8486d93127ea0d24d2e9a380a108457a20e1d46e22604102fdb540963fdbdabafaf825c704b241c600bed475d5032485f9fb61480591b20720624a8d9284cdd';
+const BASE = location.origin + location.pathname;
+let NAMES = [];
+const b64 = u => btoa(String.fromCharCode(...u)).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+const unb64 = s => Uint8Array.from(atob(s.replace(/-/g,'+').replace(/_/g,'/')), c => c.charCodeAt(0));
 const KEY = 'yilbasi-cekilis-v2';
 const app = document.getElementById('app');
 const ov = document.getElementById('ov'), dlg = document.getElementById('dlg');
@@ -142,7 +142,7 @@ const validTok = t => /^g[0-9a-f]{20,}$/.test(t) && (t.length-1) % 2 === 0;
 let st = load();
 function load(){ try{ return JSON.parse(localStorage.getItem(KEY)) || {names:''}; }catch(e){ return {names:''}; } }
 function save(){ try{ localStorage.setItem(KEY, JSON.stringify(st)); }catch(e){} }
-const groupLink = () => st.tok === EMBED ? BASE : BASE + '#' + st.tok;
+const groupLink = () => BASE + '?c=' + b64(unhex(st.tok.slice(1))) + '&n=' + b64(te.encode(st.pairs.map(p => p.g).sort((x,y) => x.localeCompare(y,'tr')).join('\n')));
 const groupMsg = () => `Yılbaşı çekilişi yapıldı! Linke girip adını soyadını yaz, kime hediye alacağını gör. Kimseye söyleme 🤫\n${groupLink()}`;
 
 function parse(txt){ return txt.split(/\n|,/).map(s => s.trim().replace(/\s+/g,' ')).filter(Boolean); }
@@ -188,7 +188,7 @@ function renderResults(){
     <div class="actions"><button id="redo">Yeniden çek</button><button id="edit">İsimleri düzenle</button></div>
     <details><summary>Organizatör: tüm eşleşmeleri gör</summary><div id="allp"></div></details>
   </div>
-  <p class="note">Bu ekranın adresi: sayfa linkinin sonuna #yonetim. Çekiliş bu cihazda saklanıyor. Yeniden çekersen eski link geçersiz olur; yeni linki gruba atman gerekir.</p>`;
+  <p class="note">Çekiliş bu cihazda saklanıyor. Yeniden çekersen eski link geçersiz olur; yeni linki gruba atman gerekir.</p>`;
   document.getElementById('cp').onclick = e => copy(groupLink(), e.target);
   document.getElementById('cpn').onclick = e => copy(ps.map(p => p.g).sort((x,y) => x.localeCompare(y,'tr')).join('\n'), e.target);
   document.getElementById('redo').onclick = () => confirmDlg('Yeniden çekilsin mi?', 'Eski link artık işe yaramaz; gruba yeni linki atman gerekir.', 'Yeniden çek', () => doDraw(ps.map(p => p.g)));
@@ -277,9 +277,18 @@ function renderWheel(g, r, others, tok, hide){
     setTimeout(show, reduce ? 800 : 6000);
   };
 }
+function fromUrl(u){
+  try{
+    const q = new URL(u.trim(), location.href).searchParams, c = q.get('c');
+    if (c){ const t = 'g' + hex(unb64(c)); if (!validTok(t)) return null; const n = q.get('n'); NAMES = n ? td.decode(unb64(n)).split('\n').filter(Boolean) : []; return t; }
+    const h = u.includes('#') ? u.slice(u.indexOf('#') + 1).trim() : '';
+    if (validTok(h)){ NAMES = []; return h; }
+  }catch(e){}
+  return null;
+}
 function renderBadLink(){
-  app.innerHTML = `<h1>Link okunamadı</h1><div class="card"><p>Bu link eksik görünüyor. Gruptaki linkin tamamını aşağıya yapıştır.</p><input id="tk" placeholder="Linki buraya yapıştır"><div class="actions"><button class="pri" id="ok">Devam</button></div><div class="err" id="err"></div></div>`;
-  document.getElementById('ok').onclick = () => { const t = document.getElementById('tk').value.replace(/^.*#/,'').trim(); if (validTok(t)) renderJoin(t); else document.getElementById('err').textContent = 'Bu link geçerli değil.'; };
+  app.innerHTML = `<h1>Yılbaşı Çekilişi</h1><div class="card"><p>Bu linkte çekiliş görünmüyor. Gruptaki linkin tamamını aşağıya yapıştır.</p><input id="tk" placeholder="Linki buraya yapıştır"><div class="actions"><button class="pri" id="ok">Devam</button></div><div class="err" id="err"></div></div>`;
+  document.getElementById('ok').onclick = () => { const t = fromUrl(document.getElementById('tk').value); if (t) renderJoin(t); else document.getElementById('err').textContent = 'Bu link geçerli değil.'; };
 }
 
 function close(){ ov.classList.remove('on'); dlg.innerHTML = ''; }
@@ -302,8 +311,9 @@ function route(){
   const h = location.hash.slice(1);
   if (h.startsWith('g')){ validTok(h) ? renderJoin(h) : renderBadLink(); return; }
   if (h === 'yonetim') return st.pairs && st.tok ? renderResults() : renderSetup();
-  if (EMBED) return renderJoin(EMBED);
-  st.pairs && st.tok ? renderResults() : renderSetup();
+  const t = fromUrl(location.href);
+  if (t) return renderJoin(t);
+  renderBadLink();
 }
 addEventListener('hashchange', route);
 route();
